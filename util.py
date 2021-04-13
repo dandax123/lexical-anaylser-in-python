@@ -34,6 +34,4 @@ def is_float(n):
 
 
 
-# def 
-print(is_integer("-223"))
 
