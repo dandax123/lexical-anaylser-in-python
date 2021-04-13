@@ -25,7 +25,8 @@ while(not shouldExit):
             handle_lex_result(lex_result)
         except IndexError:
             print("\nAll the tokens have been analysed \n")
-            print(print_symbol_table())    
+            print(print_symbol_table())
+            print("\n")    
     elif(userAction == 2):
         print(print_symbol_table())
     elif(userAction == 3):
