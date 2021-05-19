@@ -6,12 +6,8 @@ class File:
         except OSError:
             print("Could not access file !!!")
     def read_input_token(self):
-        inputs_token = []
         f = open(self.file_name,'r',encoding = 'utf-8')
-        for line in f:
-            line_data = line.split()
-            inputs_token.extend(line_data)
-        f.close()
+        inputs_token = f.readline()
         return inputs_token
 
 

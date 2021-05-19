@@ -4,31 +4,7 @@ symbol_table = []
 symbol_table.extend(keywords)
 
 def lex_result(input_token,  value=None):
-        token_type = Tokens(input_token).name
-        if(not value):
-            return {
-            "token":token_type
-            }
-        elif(input_token == "int"):
-            return {
-                "token": token_type,
-                "integer_value": value
-            }
-        elif(input_token == "float"):
-            return {
-                "token": token_type,
-                "float_value": value
-            }
-        if(input_token == "err"):
-            return {
-                "token": token_type,
-                "unrecognized_string": value
-            }
-        elif(input_token == "id"):
-            return {
-                "token": token_type,
-                "index": value
-            }
+    return value
 def add_to_symbol_table(identifier):
     if(symbol_table.count(identifier)):
         return symbol_table.index(identifier)
@@ -39,7 +15,7 @@ def add_to_symbol_table(identifier):
 def print_symbol_table():
     return "Symbol Table:  " + str(symbol_table)
     
-def lex(input_token):
+def _lex(input_token):
     if(is_operator(input_token)):
         return lex_result(input_token)
     elif(is_identifier(input_token)):
