@@ -13,7 +13,7 @@ class Parser:
         if (self.next_token =='$' and (not self.error)):
             print("success")
         else:
-            print("failure: unconsumed input " +  self.unconsumed_input())
+            print("failure: unconsumed input: " +  self.unconsumed_input())
     #/* E -> T R */
     def E(self):
         if (self.error):
@@ -73,7 +73,6 @@ class Parser:
             else:
                 self.error=True
                 print("error: unexpected token " + self.next_token) 
-                print("unconsumed_input "+ self.unconsumed_input())
                 return None
         elif (self.next_token in ['a' , 'b' , 'c' , 'd']):
             print("F->M")
@@ -84,7 +83,6 @@ class Parser:
         else:
             self.error=True
             print("error: unexpected token " + self.next_token)
-            print("unconsumed_input "+ self.unconsumed_input())
     #/* M  a | b | c | d */
     def M(self):
         if (self.error):
@@ -95,7 +93,6 @@ class Parser:
         else:
             self.error=True
             print("error: unexpected token " + self.next_token)
-            print("unconsumed_input "+ self.unconsumed_input())
         
 
     #/* N  0 | 1 | 2 | 3 */
@@ -108,7 +105,6 @@ class Parser:
         else :
             self.error=True
             print("error: unexpected token " + self.next_token) 
-            print("unconsumed_input "+ self.unconsumed_input())
     
     def unconsumed_input(self):
         return self.input_tokens[self.input_token_index:]
