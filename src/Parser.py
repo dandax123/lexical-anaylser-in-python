@@ -1,117 +1,173 @@
-class Parser:
-    def __init__(self, input_tokens):
-        print("Starting the parser ... \n")
-        self.input_token_index = -1
-        self.input_tokens = input_tokens
-        self.error = False
-        self.next_token = '$'
-        self.G()
+from util import is_integer
+
+
+globals = {'input_token_index': -1,'next_token': '$', 'input_tokens': [], 'error':False}
+class Node:
+    def __init__(self, symbol='',leftChild=None, rightChild=None ):
+        self.leftChild = leftChild
+        self.rightChild = rightChild
+        self.symbol = symbol
+ 
     def G(self):
-        self.lex()
+        lex()
         print("G -> E")
-        self.E()
-        if (self.next_token =='$' and (not self.error)):
+        tree = self.E()
+        if (globals['next_token'] =='$' and (not globals['error'])):
             print("success")
+            return tree
         else:
             print("failure: unconsumed input: " +  self.unconsumed_input())
+            return None
     #/* E -> T R */
     def E(self):
-        if (self.error):
+        if (globals['error']):
             return None
         print("E -> T R")
-        self.T()
-        self.R()
+        temp = self.T()
+        return self.R(temp)
     #/* R -> + T R | - T R | e */
-    def R(self):
-        if (self.error):
+    def R(self, tree):
+        if (globals['error']):
             return None 
-        if (self.next_token == '+'):
+        if (globals['next_token'] == '+'):
             print("R -> + T R")
-            self.lex()
-            self.T()
-            self.R()
-        elif (self.next_token == '-'):
+            lex()
+            temp1 = self.T()
+            temp2 = self.R(temp1)
+            x = Node('+', tree, temp2)
+            return x
+        elif (globals['next_token'] == '-'):
             print("R -> - T R")
-            self.lex()
-            self.T()
-            self.R()
+            lex()
+            temp1 = self.T()
+            temp2 = self.R(temp1)
+            x = Node('-', tree, temp2)
+            return x
         else:
             print("R->e")
+            return tree
     #/* T -> F S */
     def T(self):
-        if (self.error):
+        if (globals['error']):
             return None
         print("T -> F S")
-        self.F()
-        self.S()
+        temp = self.F()
+        return self.S(temp)
     #/* S -> * F S | / F S | e */
-    def S(self):
-        if (self.error):
+    def S(self, tree):
+        if (globals['error']):
             return None
-        if (self.next_token=='*'):
+        if (globals['next_token']=='*'):
             print("S -> * F S")
-            self.lex()
-            self.F()
-            self.S()
-        elif (self.next_token=='/'):
+            lex()
+            temp1 = self.F()
+            temp2 = self.S(temp1)
+            x = Node("*", tree, temp2)
+            return x
+        elif (globals['next_token']=='/'):
             print("S -> / F S")
-            self.lex()
-            self.F()
-            self.S()
+            lex()
+            temp1 = self.F()
+            temp2 = self.S(temp1)
+            x = Node("/", tree, temp2)
+            return x
         else:
             print("S -> e")
+            return tree
     #/* F -> ( E ) | N */
     def F(self):
-        if (self.error):
+        if (globals['error']):
             return None
-        if (self.next_token=='(' ):
+        if (globals['next_token']=='(' ):
             print("F->( E )")
-            self.lex()
-            self.E()
-            if (self.next_token == ')' ):
-                self.lex()   
+            lex()
+            temp = self.E()
+            if (globals['next_token'] == ')' ):
+                lex()
+                return temp   
             else:
-                self.error=True
-                print("error: unexpected token " + self.next_token) 
+                globals['error']=True
+                print("error: unexpected token " + globals['next_token']) 
                 return None
-        elif (self.next_token in ['a' , 'b' , 'c' , 'd']):
+        elif (globals['next_token'] in ['a' , 'b' , 'c' , 'd']):
             print("F->M")
-            self.M() 
-        elif (self.next_token in ['0' , '1' , '2' , '3']):
+            return self.M() 
+        elif (is_integer(globals['next_token'])):
             print("F->N")
-            self.N()    
+            return self.N()    
         else:
-            self.error=True
-            print("error: unexpected token " + self.next_token)
+            globals['error']=True
+            print("error: unexpected token " + globals['next_token'])
+            return None
     #/* M  a | b | c | d */
     def M(self):
-        if (self.error):
+        prev_token = globals['next_token']
+        if (globals['error']):
             return None
-        if (self.next_token in ['a' , 'b' , 'c' , 'd']):
-            print("M->" + self.next_token)
-            self.lex()
+        if (globals['next_token'] in ['a' , 'b' , 'c' , 'd']):
+            print("M->" + globals['next_token'])
+            lex()
+            x = Node(prev_token)
+            return x
         else:
-            self.error=True
-            print("error: unexpected token " + self.next_token)
-        
+            globals['error']=True
+            print("error: unexpected token " + globals['next_token'])
+            return None
 
     #/* N  0 | 1 | 2 | 3 */
     def N(self):
-        if (self.error):
+        prev_token = globals['next_token']
+        if (globals['error']):
             return None
-        if (self.next_token in ['0' , '1' , '2' , '3']):
-            print("N->" + self.next_token)
-            self.lex()
+        if (is_integer(globals['next_token'])):
+            print("N->" + globals['next_token'])
+            lex()
+            x  = Node(prev_token)
+            return x
         else :
-            self.error=True
-            print("error: unexpected token " + self.next_token) 
-    
-    def unconsumed_input(self):
-        return self.input_tokens[self.input_token_index:]
-
-    def lex(self):
-        self.input_token_index = self.input_token_index + 1
-        self.next_token = self.input_tokens[self.input_token_index]
-        if(self.next_token.isspace()):
-            self.lex()
+            globals['error']=True
+            print("error: unexpected token " + globals['next_token']) 
+            return None    
  
+
+def unconsumed_input():
+    return globals['input_tokens'][globals['input_token_index']:]
+
+def lex():
+    globals['input_token_index'] = globals['input_token_index'] + 1
+    globals['next_token'] = globals['input_tokens'][globals['input_token_index']]
+    if(globals['next_token'].isspace()):
+        lex()
+def initializeParse(input_tokens):
+    globals['input_tokens'] =  input_tokens
+
+def printTree(tree):
+    if(tree == None):
+        return None
+    else:
+        printTree(tree.leftChild)
+        printTree(tree.rightChild)
+        print(tree.symbol)
+
+
+def evaluate(tree):
+    if (tree==None): 
+        return -1
+    if (tree.symbol == 'a'):
+        return 10
+    if (tree.symbol == 'b'):
+        return 20
+    if (tree.symbol == 'c'):
+        return 30
+    if (tree.symbol == 'd'):
+        return 40
+    if (is_integer(tree.symbol)):
+        return int(tree.symbol)
+    if (tree.symbol == '+'):
+        return (evaluate(tree.leftChild) + evaluate(tree.rightChild))
+    if (tree.symbol == '-'):
+        return (evaluate(tree.leftChild) - evaluate(tree.rightChild))
+    if (tree.symbol == '*'):
+        return (evaluate(tree.leftChild) * evaluate(tree.rightChild))
+    if (tree.symbol == '/'):
+        return (evaluate(tree.leftChild) / evaluate(tree.rightChild))
